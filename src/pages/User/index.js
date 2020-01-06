@@ -28,23 +28,48 @@ export default class User extends Component {
   };
 
   state = {
+    page: 1,
     stars: [],
     loading: false,
+    refreshing: false,
   };
 
-  async componentDidMount() {
+  componentDidMount() {
+    this.load();
+  }
+
+  load = async (page = 1) => {
+    const {stars} = this.state;
     const {navigation} = this.props;
-    this.setState({loading: true});
     const user = navigation.getParam('user');
 
-    const response = await api.get(`/users/${user.login}/starred`);
+    const response = await api.get(`/users/${user.login}/starred`, {
+      params: {page},
+    });
 
-    this.setState({stars: response.data, loading: false});
-  }
+    this.setState({
+      stars: page >= 2 ? [...stars, ...response.data] : response.data,
+      page,
+      loading: false,
+      refreshing: false,
+    });
+  };
+
+  loadMore = () => {
+    const {page} = this.state;
+
+    const nextPage = page + 1;
+
+    this.load(nextPage);
+  };
+
+  refreshList = () => {
+    this.setState({refreshing: true, stars: []}, this.load);
+  };
 
   render() {
     const {navigation} = this.props;
-    const {stars, loading} = this.state;
+    const {stars, loading, refreshing} = this.state;
     const user = navigation.getParam('user');
     return (
       <Container>
@@ -58,6 +83,10 @@ export default class User extends Component {
         ) : (
           <Stars
             data={stars}
+            onRefresh={this.refreshList}
+            refreshing={refreshing}
+            onEndReachedThreshold={0.2}
+            onEndReached={this.loadMore}
             keyExtractor={star => String(star.id)}
             renderItem={({item}) => (
               <Starred>
