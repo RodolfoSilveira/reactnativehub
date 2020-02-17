@@ -3,6 +3,7 @@ import PropTypes from 'prop-types';
 import {Keyboard, ActivityIndicator} from 'react-native';
 import AsyncStorage from '@react-native-community/async-storage';
 import Icon from 'react-native-vector-icons/MaterialIcons';
+import withObservables from '@nozbe/with-observables';
 import api from '../../services/api';
 import {
   Container,
@@ -18,7 +19,7 @@ import {
   ProfileButtomText,
 } from './styles';
 
-export default class Main extends Component {
+class Main extends Component {
   static navigationOptions = {
     title: 'Usuários',
   };
@@ -26,7 +27,7 @@ export default class Main extends Component {
   static propTypes = {
     navigation: PropTypes.shape({
       navigate: PropTypes.func,
-    }).isRequired
+    }).isRequired,
   };
 
   state = {
@@ -37,7 +38,7 @@ export default class Main extends Component {
 
   async componentDidMount() {
     const users = await AsyncStorage.getItem('users');
-
+    console.tron.log('props', this.props);
     if (users) {
       this.setState({users: JSON.parse(users)});
     }
@@ -122,3 +123,11 @@ export default class Main extends Component {
     );
   }
 }
+
+// const enhance = withObservables(['users'], ({users}) => ({
+//   users,
+// }));
+
+// const EnhancedPost = enhance(Main);
+
+export default Main;

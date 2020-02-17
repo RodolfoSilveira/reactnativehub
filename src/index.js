@@ -9,7 +9,7 @@ const App = () => {
       <StatusBar barStyle="light-content" backgroundColor="#7159c1" />
       <Routes />
     </>
-  )
+  );
 };
 
 export default App;
